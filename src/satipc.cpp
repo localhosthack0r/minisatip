@@ -572,6 +572,8 @@ int satipc_srt_read(int socket, void *buf, int len, sockets *ss, int *rb) {
 
 static int satipc_open_srt(adapter *ad, satipc *sip) {
     // Check if we have an existing socket and it\'s still connected
+    if (sip->transport_type != SIP_TRANSPORT_SRT)
+        return 0;
     if (sip->srt_sock != SRT_INVALID_SOCK &&
         srt_socket_is_connected(sip->srt_sock)) {
         LOG("Reusing existing SRT socket %d for adapter %d", sip->srt_sock,
@@ -662,6 +664,9 @@ static int satipc_open_srt(adapter *ad, satipc *sip) {
 #endif
 
 int satipc_setup_rtp_udp_sockets(adapter *ad, satipc *sip) {
+    if (sip->transport_type != SIP_TRANSPORT_UDP)
+        return 0;
+
     sip->listen_udp = opts.start_rtp + 1000 + ad->id * 2;
     ad->dvr = udp_bind(NULL, sip->listen_udp, opts.use_ipv4_only);
     if (ad->dvr < 0)
